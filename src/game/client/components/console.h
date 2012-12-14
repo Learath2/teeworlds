@@ -51,6 +51,7 @@ class CGameConsole : public CComponent
 
 		const char *GetString() const { return m_Input.GetString(); }
 		static void PossibleCommandsCompleteCallback(const char *pStr, void *pUser);
+		static void PossibleMapsCompleteCallback(const char *pStr, void *pUser);
 	};
 
 	class IConsole *m_pConsole;
@@ -71,6 +72,7 @@ class CGameConsole : public CComponent
 	void Dump(int Type);
 
 	static void PossibleCommandsRenderCallback(const char *pStr, void *pUser);
+	static void PossibleMapsRenderCallback(const char *pStr, void *pUser);
 	static void ClientConsolePrintCallback(const char *pStr, void *pUserData);
 	static void ConToggleLocalConsole(IConsole::IResult *pResult, void *pUserData);
 	static void ConToggleRemoteConsole(IConsole::IResult *pResult, void *pUserData);

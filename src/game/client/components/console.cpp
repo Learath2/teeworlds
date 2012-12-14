@@ -92,6 +92,14 @@ void CGameConsole::CInstance::PossibleCommandsCompleteCallback(const char *pStr,
 	pInstance->m_CompletionEnumerationCount++;
 }
 
+void CGameConsole::CInstance::PossibleMapsCompleteCallback(const char *pStr, void *pUser)
+{
+	CGameConsole::CInstance *pInstance = (CGameConsole::CInstance *)pUser;
+	if (pInstance->m_CompletionChosen == pInstance->m_CompletionEnumerationCount)
+		pInstance->m_Input.Set(pStr);
+	pInstance->m_CompletionEnumerationCount++;
+}
+
 void CGameConsole::CInstance::OnInput(IInput::CEvent Event)
 {
 	bool Handled = false;
@@ -147,16 +155,24 @@ void CGameConsole::CInstance::OnInput(IInput::CEvent Event)
 			{
 				m_CompletionChosen++;
 				m_CompletionEnumerationCount = 0;
-				m_pGameConsole->m_pConsole->PossibleCommands(m_aCompletionBuffer, m_CompletionFlagmask, m_Type != CGameConsole::CONSOLETYPE_LOCAL &&
-					m_pGameConsole->Client()->RconAuthed() && m_pGameConsole->Client()->UseTempRconCommands(),	PossibleCommandsCompleteCallback, this);
+				if(m_IsCommand && str_comp(m_Input.GetString(), "sv_map "))
+					m_pGameConsole->m_pConsole->PossibleMaps(m_aCompletionBuffer, PossibleMapsCompleteCallback, this);
+				else {
+					m_pGameConsole->m_pConsole->PossibleCommands(m_aCompletionBuffer, m_CompletionFlagmask, m_Type != CGameConsole::CONSOLETYPE_LOCAL && 
+						m_pGameConsole->Client()->RconAuthed() && m_pGameConsole->Client()->UseTempRconCommands(),	PossibleCommandsCompleteCallback, this);
+				}
 
 				// handle wrapping
 				if(m_CompletionEnumerationCount && m_CompletionChosen >= m_CompletionEnumerationCount)
 				{
 					m_CompletionChosen %= m_CompletionEnumerationCount;
 					m_CompletionEnumerationCount = 0;
-					m_pGameConsole->m_pConsole->PossibleCommands(m_aCompletionBuffer, m_CompletionFlagmask, m_Type != CGameConsole::CONSOLETYPE_LOCAL &&
-						m_pGameConsole->Client()->RconAuthed() && m_pGameConsole->Client()->UseTempRconCommands(),	PossibleCommandsCompleteCallback, this);
+					if(m_IsCommand && str_comp(m_Input.GetString(), "sv_map "))
+						m_pGameConsole->m_pConsole->PossibleMaps(m_aCompletionBuffer, PossibleMapsCompleteCallback, this);
+					else {
+						m_pGameConsole->m_pConsole->PossibleCommands(m_aCompletionBuffer, m_CompletionFlagmask, m_Type != CGameConsole::CONSOLETYPE_LOCAL &&
+							m_pGameConsole->Client()->RconAuthed() && m_pGameConsole->Client()->UseTempRconCommands(),	PossibleCommandsCompleteCallback, this);
+					}
 				}
 			}
 		}
@@ -298,6 +314,52 @@ void CGameConsole::PossibleCommandsRenderCallback(const char *pStr, void *pUser)
 			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pMatchStart, str_length(pInfo->m_pCurrentCmd));
 			pInfo->m_pSelf->TextRender()->TextColor(0.5f,0.5f,0.5f,1);
 			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pMatchStart+str_length(pInfo->m_pCurrentCmd), -1);
+		}
+		else
+		{
+			pInfo->m_pSelf->TextRender()->TextColor(0.75f,0.75f,0.75f,1);
+			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pStr, -1);
+		}
+	}
+
+	pInfo->m_EnumCount++;
+	pInfo->m_Cursor.m_X += 7.0f;
+}
+
+void CGameConsole::PossibleMapsRenderCallback(const char *pStr, void *pUser)
+{
+	CRenderInfo *pInfo = static_cast<CRenderInfo *>(pUser);
+
+	if(pInfo->m_EnumCount == pInfo->m_WantedCompletion)
+	{
+		float tw = pInfo->m_pSelf->TextRender()->TextWidth(pInfo->m_Cursor.m_pFont, pInfo->m_Cursor.m_FontSize, pStr, -1);
+		pInfo->m_pSelf->Graphics()->TextureClear();
+		pInfo->m_pSelf->Graphics()->QuadsBegin();
+			pInfo->m_pSelf->Graphics()->SetColor(229.0f/255.0f,185.0f/255.0f,4.0f/255.0f,0.85f);
+			pInfo->m_pSelf->RenderTools()->DrawRoundRect(pInfo->m_Cursor.m_X-3, pInfo->m_Cursor.m_Y, tw+5, pInfo->m_Cursor.m_FontSize+4, pInfo->m_Cursor.m_FontSize/3);
+		pInfo->m_pSelf->Graphics()->QuadsEnd();
+
+		//scroll when out of sight
+		if(pInfo->m_Cursor.m_X < 3.0f)
+			pInfo->m_Offset = 0.0f;
+		else if(pInfo->m_Cursor.m_X+tw > pInfo->m_Width)
+			pInfo->m_Offset -= pInfo->m_Width/2;
+
+		pInfo->m_pSelf->TextRender()->TextColor(0.05f, 0.05f, 0.05f,1);
+		pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pStr, -1);
+	}
+	else
+	{
+		const char *pMatchStart = str_find_nocase(pStr, pInfo->m_pCurrentCmd + 7);
+
+		if(pMatchStart)
+		{
+			pInfo->m_pSelf->TextRender()->TextColor(0.5f,0.5f,0.5f,1);
+			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pStr, pMatchStart-pStr);
+			pInfo->m_pSelf->TextRender()->TextColor(229.0f/255.0f,185.0f/255.0f,4.0f/255.0f,1);
+			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pMatchStart, str_length(pInfo->m_pCurrentCmd + 7));
+			pInfo->m_pSelf->TextRender()->TextColor(0.5f,0.5f,0.5f,1);
+			pInfo->m_pSelf->TextRender()->TextEx(&pInfo->m_Cursor, pMatchStart+str_length(pInfo->m_pCurrentCmd + 7), -1);
 		}
 		else
 		{
@@ -473,7 +535,7 @@ void CGameConsole::OnRender()
 
 				if(Info.m_EnumCount <= 0)
 				{
-					if(pConsole->m_IsCommand)
+					if(pConsole->m_IsCommand && !str_comp(pConsole->m_Input.GetString(), "sv_map "))
 					{
 						char aBuf[512];
 						str_format(aBuf, sizeof(aBuf), "Help: %s ", pConsole->m_aCommandHelp);

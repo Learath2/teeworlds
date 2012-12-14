@@ -356,6 +356,15 @@ void CConsole::PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPoss
 	}
 }
 
+void CConsole::PossibleMaps(const char *pStr, FPossibleCallback pfnCallback, void *pUser)
+{
+	for(MapListEntryTemp *pEntry = m_pFirstMapEntry; pEntry; pEntry = pEntry->m_pNext)
+	{
+		if(str_find_nocase(pEntry->m_aName, pStr))
+			pfnCallback(pEntry->m_aName, pUser);
+	}
+}
+
 CConsole::CCommand *CConsole::FindCommand(const char *pName, int FlagMask)
 {
 	for(CCommand *pCommand = m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
