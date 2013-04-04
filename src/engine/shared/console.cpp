@@ -356,6 +356,15 @@ void CConsole::PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPoss
 	}
 }
 
+void CConsole::PossibleMaps(const char *pStr, FPossibleCallback pfnCallback, void *pUser)
+{
+	for(MapListEntryTemp *pMapEntry = m_pFirstMapEntry; pMapEntry; pMapEntry = pMapEntry->m_pNext)
+	{
+		if(str_find_nocase(pMapEntry->m_aName, pStr))
+			pfnCallback(pMapEntry->m_aName, pUser);
+	}
+}
+
 CConsole::CCommand *CConsole::FindCommand(const char *pName, int FlagMask)
 {
 	for(CCommand *pCommand = m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
@@ -653,7 +662,7 @@ CConsole::CConsole(int FlagMask)
 	m_paStrokeStr[0] = "0";
 	m_paStrokeStr[1] = "1";
 	m_pTempMapListHeap = 0;
-	m_pNumMapListEntries = 0;
+	m_NumMapListEntries = 0;
 	m_pFirstMapEntry = 0;
 	m_pLastMapEntry = 0;
 	m_ExecutionQueue.Reset();
@@ -864,7 +873,7 @@ void CConsole::RegisterTempMap(const char *pName)
 	if(!m_pFirstMapEntry)
 		m_pFirstMapEntry = pEntry;
 	str_copy(pEntry->m_aName, pName, TEMPMAP_NAME_LENGTH);
-	m_pNumMapListEntries++;
+	m_NumMapListEntries++;
 }
 
 void CConsole::DeregisterTempMap(const char *pName)
@@ -878,11 +887,11 @@ void CConsole::DeregisterTempMap(const char *pName)
 		pEntry = pEntry->m_pNext;
 	}
 
-	m_pNumMapListEntries--;
+	m_NumMapListEntries--;
 	CHeap *pNewTempMapListHeap = new CHeap();
 	MapListEntryTemp *pNewFirstEntry = 0;
 	MapListEntryTemp *pNewLastEntry = 0;
-	int NewMapEntryNum = m_pNumMapListEntries;
+	int NewMapEntryNum = m_NumMapListEntries;
 
 	for(MapListEntryTemp *pSrc = m_pFirstMapEntry; pSrc; pSrc = pSrc->m_pNext)
 	{
@@ -905,7 +914,7 @@ void CConsole::DeregisterTempMap(const char *pName)
 	m_pTempMapListHeap = pNewTempMapListHeap;
 	m_pFirstMapEntry = pNewFirstEntry;
 	m_pLastMapEntry = pNewLastEntry;
-	m_pNumMapListEntries = NewMapEntryNum;
+	m_NumMapListEntries = NewMapEntryNum;
 }
 
 void CConsole::DeregisterTempMapAll()
@@ -913,7 +922,7 @@ void CConsole::DeregisterTempMapAll()
 	m_pTempMapListHeap->Reset();
 	m_pFirstMapEntry = 0;
 	m_pLastMapEntry = 0;
-	m_pNumMapListEntries = 0;
+	m_NumMapListEntries = 0;
 }
 
 void CConsole::Con_Chain(IResult *pResult, void *pUserData)

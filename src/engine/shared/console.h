@@ -57,7 +57,7 @@ class CConsole : public IConsole
 	static void ConToggle(IResult *pResult, void *pUser);
 	static void ConToggleStroke(IResult *pResult, void *pUser);
 	static void ConModCommandAccess(IResult *pResult, void *pUser);
-	static void ConModCommandStatus(IConsole::IResult *pResult, void *pUser);
+	static void ConModCommandStatus(IResult *pResult, void *pUser);
 
 	void ExecuteFileRecurse(const char *pFilename);
 	void ExecuteLineStroked(int Stroke, const char *pStr);
@@ -162,7 +162,7 @@ class CConsole : public IConsole
 	};
 
 	CHeap *m_pTempMapListHeap;
-	int m_pNumMapListEntries;
+	int m_NumMapListEntries;
 	MapListEntryTemp *m_pFirstMapEntry;
 	MapListEntryTemp *m_pLastMapEntry;
 
@@ -172,6 +172,7 @@ public:
 	virtual const CCommandInfo *FirstCommandInfo(int AccessLevel, int FlagMask) const;
 	virtual const CCommandInfo *GetCommandInfo(const char *pName, int FlagMask, bool Temp);
 	virtual void PossibleCommands(const char *pStr, int FlagMask, bool Temp, FPossibleCallback pfnCallback, void *pUser);
+	virtual void PossibleMaps(const char *pStr, FPossibleCallback pfnCallback, void *pUser);
 
 	virtual void ParseArguments(int NumArgs, const char **ppArguments);
 	virtual void Register(const char *pName, const char *pParams, int Flags, FCommandCallback pfnFunc, void *pUser, const char *pHelp);

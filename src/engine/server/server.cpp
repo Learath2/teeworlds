@@ -806,14 +806,14 @@ void CServer::UpdateClientRconCommands()
 
 void CServer::SendMapListEntryAdd(const MapListEntry *pMapListEntry, int ClientID)
 {
-	CMsgPacker Msg(NETMSG_MAPLIST_ENTRY_ADD);
+	CMsgPacker Msg(NETMSG_MAPLIST_ENTRY_ADD, true);
 	Msg.AddString(pMapListEntry->m_aName, 256);
 	SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 void CServer::SendMapListEntryRem(const MapListEntry *pMapListEntry, int ClientID)
 {
-	CMsgPacker Msg(NETMSG_MAPLIST_ENTRY_REM);
+	CMsgPacker Msg(NETMSG_MAPLIST_ENTRY_REM, true);
 	Msg.AddString(pMapListEntry->m_aName, 256);
 	SendMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
@@ -1275,10 +1275,10 @@ int CServer::Run()
 
 	// list maps
 	m_pMapListHeap= new CHeap();
-	m_pStorage->ListDirectory(IStorage::TYPE_ALL, "maps/", MapListEntryCallback, this);
-
-	for(MapListEntry *pEntry=m_pFirstMapEntry; pEntry->m_pNext; pEntry = pEntry->m_pNext)
-		dbg_msg("maplist","mapname=%s", pEntry->m_aName);
+	SubdirCallbackUserdata Userdata;
+	Userdata.m_pServer = this;
+	str_copy(Userdata.m_aName, "", sizeof(Userdata.m_aName));
+	m_pStorage->ListDirectory(IStorage::TYPE_ALL, "maps/", MapListEntryCallback, &Userdata);
 
 	// load map
 	if(!LoadMap(g_Config.m_SvMap))
@@ -1465,62 +1465,35 @@ int CServer::Run()
 
 int CServer::MapListEntryCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
 {
-	CServer *pThis = (CServer *) pUser;
-	unsigned Length = str_length(pFilename);
-
-	if(pFilename[0] == '.') // hidden files
-		return 0;
-
-	if(IsDir)
-	{
-		SubdirCallbackUserdata Userdata;
-		Userdata.m_pServer = pThis;
-		str_copy(Userdata.m_aName, pFilename, sizeof(Userdata.m_aName));
-		char FindPath[512];
-		str_format(FindPath, sizeof(FindPath), "maps/%s/", pFilename);
-		pThis->m_pStorage->ListDirectory(IStorage::TYPE_ALL, FindPath, SubdirEntryCallback, &Userdata);
-		return 0;
-	}
-
-	MapListEntry *pEntry;
-	pEntry = (MapListEntry *)pThis->m_pMapListHeap->Allocate(sizeof(MapListEntry));
-	pThis->m_NumMapEntries++;
-	pEntry->m_pNext = 0;
-	pEntry->m_pPrev = pThis->m_pLastMapEntry;
-	if(pEntry->m_pPrev)
-		pEntry->m_pPrev->m_pNext = pEntry;
-	pThis->m_pLastMapEntry = pEntry;
-	if(!pThis->m_pFirstMapEntry)
-		pThis->m_pFirstMapEntry = pEntry;
-
-	str_copy(pEntry->m_aName, pFilename, sizeof(pEntry->m_aName));
-	pEntry->m_IsDir = IsDir;
-
-	if(!IsDir)
-	{
-		if(Length < 5 || str_comp(&pEntry->m_aName[Length-4], ".map") != 0) // not ending with .map
-			return 0;
-
-		pEntry->m_aName[Length - 4] = 0;
-	}
-	else
-	 {
-		pEntry->m_aName[Length] = '/';
-		pEntry->m_aName[Length + 1] = 0;
-	 }
-	return 0;
-}
-
-int CServer::SubdirEntryCallback(const char *pFilename, int IsDir, int DirType, void *pUser)
-{
-	SubdirCallbackUserdata *pUserdata = (SubdirCallbackUserdata *) pUser;
+	SubdirCallbackUserdata *pUserdata = (SubdirCallbackUserdata *)pUser;
 	CServer *pThis = pUserdata->m_pServer;
 
 	if(pFilename[0] == '.') // hidden files
 		return 0;
 
+	char aFilename[512];
+	if(pUserdata->m_aName[0])
+		str_format(aFilename, sizeof(aFilename), "%s/%s", pUserdata->m_aName, pFilename);
+	else
+		str_format(aFilename, sizeof(aFilename), "%s", pFilename);
+
+	unsigned Length = str_length(aFilename);
+
 	if(IsDir)
+	{
+		SubdirCallbackUserdata Userdata;
+		Userdata.m_pServer = pThis;
+		str_copy(Userdata.m_aName, aFilename, sizeof(Userdata.m_aName));
+		char FindPath[512];
+		str_format(FindPath, sizeof(FindPath), "maps/%s/", aFilename);
+		pThis->m_pStorage->ListDirectory(IStorage::TYPE_ALL, FindPath, MapListEntryCallback, &Userdata);
 		return 0;
+	}
+	else
+	{
+		if(Length < 5 || str_comp(&aFilename[Length-4], ".map") != 0) // not ending with .map
+			return 0;
+	}
 
 	MapListEntry *pEntry;
 	pEntry = (MapListEntry *)pThis->m_pMapListHeap->Allocate(sizeof(MapListEntry));
@@ -1533,20 +1506,12 @@ int CServer::SubdirEntryCallback(const char *pFilename, int IsDir, int DirType, 
 	if(!pThis->m_pFirstMapEntry)
 		pThis->m_pFirstMapEntry = pEntry;
 
-	char Filename[512];
-	str_format(Filename, sizeof(Filename), "%s/%s", pUserdata->m_aName, pFilename);
+	str_copy(pEntry->m_aName, aFilename, sizeof(pEntry->m_aName));
 
-	str_copy(pEntry->m_aName, Filename, sizeof(pEntry->m_aName));
-	pEntry->m_IsDir = IsDir;
+	if(!IsDir)
+		pEntry->m_aName[Length - 4] = 0;
 
-	unsigned Length = str_length(Filename);
-
-	if(Length < 5 || str_comp(&pEntry->m_aName[Length-4], ".map") != 0) // not ending with .map
-		return 0;
-
-	pEntry->m_aName[Length - 4] = 0;
 	return 0;
-
 }
 
 void CServer::ConKick(IConsole::IResult *pResult, void *pUser)
@@ -1581,7 +1546,7 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 			}
 			else
 				str_format(aBuf, sizeof(aBuf), "id=%d addr=%s connecting", i, aAddrStr);
-			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Server", aBuf);
+			pThis->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 		}
 	}
 }
@@ -1639,7 +1604,33 @@ void CServer::ConStopRecord(IConsole::IResult *pResult, void *pUser)
 void CServer::ConListMaps(IConsole::IResult *pResult, void *pUser)
 {
 	CServer *pServer = (CServer *)pUser;
+	char aBuf[260];
+	mem_zero(aBuf, sizeof(aBuf));
+	int Used = 0;
 
+	for(MapListEntry *pMapEntry = pServer->m_pFirstMapEntry; pMapEntry; pMapEntry = pMapEntry->m_pNext)
+	{
+		int Length = str_length(pMapEntry->m_aName);
+		if(Used + Length + 2 < (int)(sizeof(aBuf)))
+		{
+			if(Used > 0)
+			{
+				Used += 2;
+				str_append(aBuf, ", ", sizeof(aBuf));
+			}
+			str_append(aBuf, pMapEntry->m_aName, sizeof(aBuf));
+			Used += Length;
+		}
+		else
+		{
+			pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+			mem_zero(aBuf, sizeof(aBuf));
+			str_copy(aBuf, pMapEntry->m_aName, sizeof(aBuf));
+			Used = Length;
+		}
+	}
+	if(Used > 0)
+		pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 
 }
 
@@ -1738,7 +1729,7 @@ void CServer::RegisterCommands()
 	Console()->Register("record", "?s", CFGFLAG_SERVER|CFGFLAG_STORE, ConRecord, this, "Record to a file");
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
 
-	Console()->Register("maps", "", CFGFLAG_SERVER, ConListMaps, this, "List the maps");
+	Console()->Register("maps", "", CFGFLAG_SERVER, ConListMaps, this, "List all available maps");
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
