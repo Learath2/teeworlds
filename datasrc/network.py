@@ -137,6 +137,8 @@ Objects = [
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
 
+		NetIntAny("m_Frz"),
+
 		NetIntAny("m_Angle"),
 		NetIntRange("m_Direction", -1, 1),
 

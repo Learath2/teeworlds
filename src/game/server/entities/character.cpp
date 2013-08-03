@@ -678,6 +678,18 @@ bool CCharacter::IncreaseArmor(int Amount)
 	return true;
 }
 
+void Freeze(int Ticks)
+{
+	if(Ticks < 0)
+		Ticks = -1;
+	m_Core.m_Freeze = Ticks;
+}
+
+void UnFreeze()
+{
+	Freeze(0);
+}
+
 void CCharacter::Die(int Killer, int Weapon)
 {
 	// we got to wait 0.5 secs before respawning

@@ -72,6 +72,7 @@ void CCharacterCore::Reset()
 	m_HookedPlayer = -1;
 	m_Jumped = 0;
 	m_TriggeredEvents = 0;
+	m_Freeze = 0;
 }
 
 void CCharacterCore::Tick(bool UseInput)
@@ -86,6 +87,9 @@ void CCharacterCore::Tick(bool UseInput)
 	if(m_pCollision->CheckPoint(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+5))
 		Grounded = true;
 
+	if(m_Freeze > 0)
+		m_Freeze--;
+
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
 	m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
@@ -94,6 +98,7 @@ void CCharacterCore::Tick(bool UseInput)
 	float Accel = Grounded ? m_pWorld->m_Tuning.m_GroundControlAccel : m_pWorld->m_Tuning.m_AirControlAccel;
 	float Friction = Grounded ? m_pWorld->m_Tuning.m_GroundFriction : m_pWorld->m_Tuning.m_AirFriction;
 
+	float OldYVel = m_Vel.y;
 	// handle input
 	if(UseInput)
 	{
@@ -156,10 +161,20 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 	}
 
+	if(m_Freeze > 0)
+	{
+		m_Jumped &= ~1;
+		m_HookedPlayer = -1;
+		m_Vel.y = OldYVel;
+		m_HookState = HOOK_IDLE;
+		m_HookPos = m_Pos;
+		m_TriggeredEvents &= ~(COREEVENTFLAG_AIR_JUMP | COREEVENTFLAG_HOOK_LAUNCH | COREEVENTFLAG_GROUND_JUMP);
+	}
+
 	// add the speed modification according to players wanted direction
-	if(m_Direction < 0)
+	if(!m_Freeze && m_Direction < 0)
 		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
-	if(m_Direction > 0)
+	if(!m_Freeze && m_Direction > 0)
 		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
 	if(m_Direction == 0)
 		m_Vel.x *= Friction;
@@ -416,6 +431,8 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Angle = m_Angle;
+
+	pObjCore->m_Freeze = m_Frz;
 }
 
 void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
@@ -433,6 +450,7 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Jumped = pObjCore->m_Jumped;
 	m_Direction = pObjCore->m_Direction;
 	m_Angle = pObjCore->m_Angle;
+	m_Freeze = pObjCore->m_Frz;
 }
 
 void CCharacterCore::Quantize()
