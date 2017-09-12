@@ -24,6 +24,7 @@ enum
 	CFGFLAG_MASTER=16,
 	CFGFLAG_ECON=32,
 	CFGFLAG_BASICACCESS=64,
+	CFGFLAG_NONTEEHISTORIC=128,
 };
 
 class CConfigManager : public IConfigManager
