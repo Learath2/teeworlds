@@ -1294,6 +1294,15 @@ int str_utf8_encode(char *ptr, int chr);
 */
 int str_utf8_check(const char *str);
 
+/*
+	Function: pid
+		Returns the PID of the process
+
+	Returns:
+		PID of current process
+*/
+int pid();
+
 #ifdef __cplusplus
 }
 #endif

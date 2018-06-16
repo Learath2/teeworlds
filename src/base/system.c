@@ -2020,7 +2020,6 @@ int str_utf8_check(const char *str)
 	return 1;
 }
 
-
 unsigned str_quickhash(const char *str)
 {
 	unsigned hash = 5381;
@@ -2029,6 +2028,14 @@ unsigned str_quickhash(const char *str)
 	return hash;
 }
 
+int pid()
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	return _getpid();
+#else
+	return getpid();
+#endif
+}
 
 #if defined(__cplusplus)
 }
