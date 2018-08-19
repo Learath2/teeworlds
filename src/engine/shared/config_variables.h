@@ -161,4 +161,8 @@ MACRO_CONFIG_INT(SvSuddenDeathScoreDiff, sv_sudden_death_score_diff, 2, 0, 1000,
 	MACRO_CONFIG_STR(sv_blacklist, 32, "Blacklist.TEEFOOT", CFGFLAG_SERVER, "Blacklist for some fuckign ip refreshing noobs!",2)
 */
 
+MACRO_CONFIG_INT(SvVanillaAntiSpoof, sv_vanilla_antispoof, 1, 0, 1, CFGFLAG_SERVER, "Enable vanilla Antispoof")
+MACRO_CONFIG_INT(SvVanConnPerSecond, sv_van_conn_per_second, 10, 1, 1000, CFGFLAG_SERVER, "Antispoof specific ratelimit")
+MACRO_CONFIG_INT(SvConnlimit, sv_connlimit, 4, 0, 100, CFGFLAG_SERVER, "Connlimit: Number of connections an IP is allowed to do in a timespan")
+MACRO_CONFIG_INT(SvConnlimitTime, sv_connlimit_time, 20, 0, 1000, CFGFLAG_SERVER, "Connlimit: Time in which IP's connections are counted")
 #endif
