@@ -9,4 +9,5 @@
 #define CLIENT_VERSION 0x0705
 #define SETTINGS_FILENAME "settings07"
 static const char GAME_RELEASE_VERSION[8] = "0.7.5";
+extern const char *GIT_SHORTREV_HASH;
 #endif
