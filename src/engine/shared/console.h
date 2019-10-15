@@ -63,7 +63,7 @@ class CConsole : public IConsole
 	static void ConModCommandStatus(IResult *pResult, void *pUser);
 
 	void ExecuteFileRecurse(const char *pFilename);
-	void ExecuteLineStroked(int Stroke, const char *pStr);
+	void ExecuteLineStroked(int Stroke, const char *pStr, int ClientID = -1);
 
 	struct
 	{
@@ -201,15 +201,15 @@ public:
 
 	virtual bool ArgStringIsValid(const char *pFormat);
 	virtual bool LineIsValid(const char *pStr);
-	virtual void ExecuteLine(const char *pStr);
-	virtual void ExecuteLineFlag(const char *pStr, int FlagMask);
-	virtual bool ExecuteFile(const char *pFilename);
+
+	virtual void ExecuteLine(const char *pStr, int ClientID = -1);
+	virtual void ExecuteLineFlag(const char *pStr, int FlagMask, int ClientID = -1);
+	virtual bool ExecuteFile(const char *pFilename, int ClientID = -1);
 
 	virtual int RegisterPrintCallback(int OutputLevel, FPrintCallback pfnPrintCallback, void *pUserData);
 	virtual void SetPrintOutputLevel(int Index, int OutputLevel);
 	virtual void Print(int Level, const char *pFrom, const char *pStr, bool Highlighted=false);
 	virtual void SetTeeHistorianCommandCallback(FTeeHistorianCommandCallback pfnCallback, void *pUser);
-
 	virtual int ParseCommandArgs(const char *pArgs, const char *pFormat, FCommandCallback pfnCallback, void *pContext);
 
 	void SetAccessLevel(int AccessLevel) { m_AccessLevel = clamp(AccessLevel, (int)(ACCESS_LEVEL_ADMIN), (int)(ACCESS_LEVEL_MOD)); }

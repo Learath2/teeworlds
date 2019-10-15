@@ -1,5 +1,9 @@
 #ifndef TEST_TEST_H
 #define TEST_TEST_H
+
+#include <engine/config.h>
+
+extern CConfig *g_pConfig;
 class CTestInfo
 {
 public:

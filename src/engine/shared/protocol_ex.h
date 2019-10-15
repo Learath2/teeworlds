@@ -2,6 +2,7 @@
 #define ENGINE_SHARED_PROTOCOL_EX_H
 
 #include <engine/message.h>
+#include <engine/config.h>
 
 enum
 {
@@ -23,6 +24,6 @@ enum
 
 void RegisterUuids(class CUuidManager *pManager);
 
-int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpacker, CMsgPacker *pPacker);
+int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpacker, CMsgPacker *pPacker, CConfig *pConfig);
 
 #endif // ENGINE_SHARED_PROTOCOL_EX_H

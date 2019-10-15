@@ -3,6 +3,8 @@
 
 #include <base/system.h>
 
+CConfig *g_pConfig;
+
 CTestInfo::CTestInfo()
 {
 	const ::testing::TestInfo *pTestInfo =
@@ -21,5 +23,9 @@ int main(int argc, char **argv)
 {
 	::testing::InitGoogleTest(&argc, argv);
 	net_init();
+	IConfigManager *pConfigManager = CreateConfigManager();
+	pConfigManager->Reset();
+	g_pConfig = pConfigManager->Values();
+
 	return RUN_ALL_TESTS();
 }

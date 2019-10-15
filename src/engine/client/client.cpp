@@ -1127,7 +1127,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 	bool Sys;
 	CUuid Uuid;
 
-	int Result = UnpackMessageID(&Msg, &Sys, &Uuid, &Unpacker, &Packer);
+	int Result = UnpackMessageID(&Msg, &Sys, &Uuid, &Unpacker, &Packer, m_pConfig);
 	if(Result == UNPACKMESSAGE_ERROR)
 	{
 		return;
@@ -1919,7 +1919,7 @@ void CClient::Run()
 	m_LocalStartTime = time_get();
 	m_SnapshotParts = 0;
 
-	if(g_Config.m_Debug)
+	if(m_pConfig->m_Debug)
 	{
 		g_UuidManager.DebugDump();
 	}

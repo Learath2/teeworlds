@@ -1,3 +1,4 @@
+#include "test.h"
 #include <gtest/gtest.h>
 
 #include <engine/message.h>
@@ -13,7 +14,7 @@ static void TestMessage(bool WantedSys, int WantedID, const void *pData, int Siz
 	bool Sys;
 	CUuid Uuid;
 	CMsgPacker Answer(0);
-	EXPECT_EQ(UnpackMessageID(&ID, &Sys, &Uuid, pUnpacker, &Answer), (int)UNPACKMESSAGE_OK);
+	EXPECT_EQ(UnpackMessageID(&ID, &Sys, &Uuid, pUnpacker, &Answer, g_pConfig), (int)UNPACKMESSAGE_OK);
 	EXPECT_EQ(ID, WantedID);
 	EXPECT_EQ(Sys, WantedSys);
 }
@@ -97,7 +98,7 @@ static void GetWhatIsAnswer(int Uuid, CMsgPacker *pPacker)
 	int ID;
 	bool Sys;
 	CUuid TmpUuid;
-	ASSERT_EQ(UnpackMessageID(&ID, &Sys, &TmpUuid, &Unpacker, pPacker), (int)UNPACKMESSAGE_ANSWER);
+	ASSERT_EQ(UnpackMessageID(&ID, &Sys, &TmpUuid, &Unpacker, pPacker, g_pConfig), (int)UNPACKMESSAGE_ANSWER);
 	EXPECT_EQ(Sys, true);
 	EXPECT_EQ(ID, (int)NETMSG_WHATIS);
 }

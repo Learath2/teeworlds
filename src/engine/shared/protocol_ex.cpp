@@ -13,7 +13,7 @@ void RegisterUuids(CUuidManager *pManager)
 	#undef UUID
 }
 
-int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpacker, CMsgPacker *pPacker)
+int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpacker, CMsgPacker *pPacker, CConfig *pConfig)
 {
 	*pID = 0;
 	*pSys = false;
@@ -72,7 +72,7 @@ int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpac
 				return UNPACKMESSAGE_ANSWER;
 			}
 		case NETMSG_IDONTKNOW:
-			if(g_Config.m_Debug)
+			if(pConfig->m_Debug)
 			{
 				CUuid Uuid2;
 				g_UuidManager.UnpackUuid(pUnpacker, &Uuid2);
@@ -84,7 +84,7 @@ int UnpackMessageID(int *pID, bool *pSys, struct CUuid *pUuid, CUnpacker *pUnpac
 			}
 			break;
 		case NETMSG_ITIS:
-			if(g_Config.m_Debug)
+			if(pConfig->m_Debug)
 			{
 				CUuid Uuid2;
 				g_UuidManager.UnpackUuid(pUnpacker, &Uuid2);

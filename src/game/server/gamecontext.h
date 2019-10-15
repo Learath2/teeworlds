@@ -14,7 +14,6 @@
 #include "gameworld.h"
 #include "teehistorian.h"
 
-#include "score.h"
 #ifdef _MSC_VER
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
@@ -48,7 +47,9 @@ class CGameContext : public IGameServer
 {
 	IServer *m_pServer;
 	class CConfig *m_pConfig;
+	class IStorage *m_pStorage;
 	class IConsole *m_pConsole;
+
 	CLayers m_Layers;
 	CCollision m_Collision;
 	CNetObjHandler m_NetObjHandler;
@@ -94,6 +95,7 @@ class CGameContext : public IGameServer
 public:
 	IServer *Server() const { return m_pServer; }
 	class CConfig *Config() { return m_pConfig; }
+	class IStorage *Storage() { return m_pStorage; }
 	class IConsole *Console() { return m_pConsole; }
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
@@ -138,6 +140,10 @@ public:
 	int m_VoteClientID;
 	int m_NumVoteOptions;
 	int m_VoteEnforce;
+
+	char m_aDeleteTempfile[128];
+	void DeleteTempfile();
+
 	enum
 	{
 		VOTE_ENFORCE_UNKNOWN=0,

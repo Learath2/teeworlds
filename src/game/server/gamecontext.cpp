@@ -2,6 +2,7 @@
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include <base/math.h>
 
+#include <engine/storage.h>
 #include <engine/shared/config.h>
 #include <engine/shared/memheap.h>
 #include <engine/map.h>
@@ -1606,6 +1607,7 @@ void CGameContext::OnConsoleInit()
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
+	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 
 	Console()->Register("tune", "s[tuning] i[value]", CFGFLAG_SERVER, ConTuneParam, this, "Tune variable to value");
@@ -1647,6 +1649,7 @@ void CGameContext::OnInit()
 	// init everything
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConfig = Kernel()->RequestInterface<IConfigManager>()->Values();
+	m_pStorage = Kernel()->RequestInterface<IStorage>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
 	m_World.SetGameServer(this);
 	m_Events.SetGameServer(this);
@@ -1682,9 +1685,10 @@ void CGameContext::OnInit()
 
 	m_pController->RegisterChatCommands(CommandManager());
 
-	m_TeeHistorianActive = g_Config.m_SvTeeHistorian;
+	m_TeeHistorianActive = m_pConfig->m_SvTeeHistorian;
 	if(m_TeeHistorianActive)
 	{
+		dbg_msg("DEBUG", "Tee historian ACTIVE");
 		char aGameUuid[UUID_MAXSTRSIZE];
 		FormatUuid(m_GameUuid, aGameUuid, sizeof(aGameUuid));
 
@@ -1713,11 +1717,11 @@ void CGameContext::OnInit()
 		GameInfo.m_pServerVersion = aVersion;
 		GameInfo.m_StartTime = time(0);
 
-		GameInfo.m_pServerName = g_Config.m_SvName;
-		GameInfo.m_ServerPort = g_Config.m_SvPort;
+		GameInfo.m_pServerName = m_pConfig->m_SvName;
+		GameInfo.m_ServerPort = m_pConfig->m_SvPort;
 		GameInfo.m_pGameType = m_pController->GetGameType();
 
-		GameInfo.m_pConfig = &g_Config;
+		GameInfo.m_pConfig = m_pConfig;
 		GameInfo.m_pTuning = Tuning();
 		GameInfo.m_pUuids = &g_UuidManager;
 
@@ -1782,6 +1786,15 @@ void CGameContext::OnInit()
 			OnClientConnected(MAX_CLIENTS -i-1, true, false);
 	}
 #endif
+}
+
+void CGameContext::DeleteTempfile()
+{
+	if(m_aDeleteTempfile[0] != 0)
+	{
+		Storage()->RemoveFile(m_aDeleteTempfile, IStorage::TYPE_SAVE);
+		m_aDeleteTempfile[0] = 0;
+	}
 }
 
 void CGameContext::OnShutdown()
