@@ -302,7 +302,8 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 
 	if(Type != -1)
 	{
-		new CPickup(&GameServer()->m_World, Type, Pos);
+		CPickup *pPickup = new CPickup(Type, Pos);
+		GameServer()->m_World.InsertEntity(pPickup);
 		return true;
 	}
 

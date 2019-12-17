@@ -77,6 +77,8 @@ void CGameWorld::InsertEntity(CEntity *pEnt)
 	pEnt->m_pNextTypeEntity = m_apFirstEntityTypes[pEnt->m_ObjType];
 	pEnt->m_pPrevTypeEntity = 0x0;
 	m_apFirstEntityTypes[pEnt->m_ObjType] = pEnt;
+
+	pEnt->OnInsert(this);
 }
 
 void CGameWorld::DestroyEntity(CEntity *pEnt)
@@ -104,6 +106,8 @@ void CGameWorld::RemoveEntity(CEntity *pEnt)
 
 	pEnt->m_pNextTypeEntity = 0;
 	pEnt->m_pPrevTypeEntity = 0;
+
+	pEnt->OnRemove();
 }
 
 //
