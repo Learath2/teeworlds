@@ -2905,12 +2905,12 @@ void CEditor2::RenderPopupFileSelect()
 	MainRect.HSplitTop(Padding * 1/2, 0, &MainRect);
 
 	CUIRect Bookmarks, Browser, Preview;
-	MainRect.VSplitLeft(MainRect.w * 1/5 - (Padding/2), &Bookmarks, &MainRect);
-	MainRect.VSplitLeft(Padding/2, 0, &MainRect);
-	MainRect.VSplitLeft(MainRect.w * 3/4 - (Padding/2), &Browser, &Preview);
-	Preview.VSplitLeft(Padding/2, 0, &Preview);
+	//MainRect.VSplitLeft(MainRect.w * 1/5 - (Padding/2), &Bookmarks, &MainRect);
+	//MainRect.VSplitLeft(Padding/2, 0, &MainRect);
+	MainRect.VSplitLeft(MainRect.w * 5/5 - (Padding/2), &Browser, &Preview);
+	//Preview.VSplitLeft(Padding/2, 0, &Preview);
 
-	Preview.h = Preview.w;
+	//Preview.h = Preview.w;
 
 	{
 		CUIRect Label;
@@ -2921,17 +2921,17 @@ void CEditor2::RenderPopupFileSelect()
 
 	Browser.HSplitTop(Padding / 2, 0, &Browser);
 
-	{
+	/*{
 		CUIRect Label;
 		Preview.HSplitTop(Padding / 2, &Label, &Preview);
 		Label.Margin(1.0f, &Label);
 		DrawText(Label, "Preview:", Label.h);
-	}
+	}*/
 
-	Bookmarks.HSplitBottom(20.0f + Padding, &Bookmarks, 0);
-	DrawRect(Bookmarks, vec4(0.4f, 0.4f, 0.5f, 1.0f));
+	//Bookmarks.HSplitBottom(20.0f + Padding, &Bookmarks, 0);
+	//DrawRect(Bookmarks, vec4(0.4f, 0.4f, 0.5f, 1.0f));
 
-	DrawRect(Preview, vec4(0.4f, 0.5f, 0.5f, 1.0f));
+	//DrawRect(Preview, vec4(0.4f, 0.5f, 0.5f, 1.0f));
 
 	CUIRect Bottom;
 	Browser.HSplitBottom(20.0f, &Browser, &Bottom);
