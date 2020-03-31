@@ -95,6 +95,8 @@ public:
 		void Invalidate() { m_Id = -1; }
 	};
 
+	virtual void Resize(int w, int h) = 0;
+
 	int ScreenWidth() const { return m_ScreenWidth; }
 	int ScreenHeight() const { return m_ScreenHeight; }
 	float ScreenAspect() const { return (float)ScreenWidth()/(float)ScreenHeight(); }
@@ -208,6 +210,7 @@ public:
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool SetVSync(bool State) = 0;
 	virtual int GetWindowScreen() = 0;
+	virtual void UpdateScreenSize() = 0;
 
 	virtual void Minimize() = 0;
 	virtual void Maximize() = 0;

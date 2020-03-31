@@ -85,6 +85,7 @@ public:
 		CMD_VSYNC,
 		CMD_SCREENSHOT,
 		CMD_VIDEOMODES,
+		CMD_RESIZE,
 
 	};
 
@@ -215,6 +216,14 @@ public:
 		bool *m_pRetOk;
 	};
 
+	struct SCommand_Resize : public SCommand
+	{
+		SCommand_Resize() : SCommand(CMD_RESIZE) {}
+
+		int m_Width;
+		int m_Height;
+	};
+
 	struct SCommand_Texture_Create : public SCommand
 	{
 		SCommand_Texture_Create() : SCommand(CMD_TEXTURE_CREATE) {}
@@ -329,6 +338,7 @@ public:
 	virtual void SetWindowBordered(bool State) = 0;
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool GetDesktopResolution(int Index, int *pDesktopWidth, int* pDesktopHeight) = 0;
+	virtual void GetScreenSize(int *pScreenWidth, int *pScreenHeight) = 0;
 	virtual int GetWindowScreen() = 0;
 	virtual int WindowActive() = 0;
 	virtual int WindowOpen() = 0;
@@ -448,12 +458,14 @@ public:
 	virtual void QuadsText(float x, float y, float Size, const char *pText);
 
 	virtual int GetNumScreens() const;
+	virtual void Resize(int w, int h);
 	virtual void Minimize();
 	virtual void Maximize();
 	virtual bool Fullscreen(bool State);
 	virtual void SetWindowBordered(bool State);
 	virtual bool SetWindowScreen(int Index);
 	virtual int GetWindowScreen();
+	virtual void UpdateScreenSize();
 
 	virtual int WindowActive();
 	virtual int WindowOpen();

@@ -601,6 +601,14 @@ void CCommandProcessorFragment_SDL::Cmd_VideoModes(const CCommandBuffer::SComman
 	*pCommand->m_pNumModes = numModes;
 }
 
+void CCommandProcessorFragment_SDL::Cmd_Resize(const CCommandBuffer::SCommand_Resize *pCommand)
+{
+	SDL_SetWindowSize(m_pWindow, pCommand->m_Width, pCommand->m_Height);
+	int Width, Height;
+	SDL_GL_GetDrawableSize(m_pWindow, &Width, &Height);
+	glViewport(0, 0, Width, Height);
+}
+
 CCommandProcessorFragment_SDL::CCommandProcessorFragment_SDL()
 {
 }
@@ -612,6 +620,7 @@ bool CCommandProcessorFragment_SDL::RunCommand(const CCommandBuffer::SCommand *p
 	case CCommandBuffer::CMD_SWAP: Cmd_Swap(static_cast<const CCommandBuffer::SCommand_Swap *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_VSYNC: Cmd_VSync(static_cast<const CCommandBuffer::SCommand_VSync *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_VIDEOMODES: Cmd_VideoModes(static_cast<const CCommandBuffer::SCommand_VideoModes *>(pBaseCommand)); break;
+	case CCommandBuffer::CMD_RESIZE: Cmd_Resize(static_cast<const CCommandBuffer::SCommand_Resize *>(pBaseCommand)); break;
 	case CMD_INIT: Cmd_Init(static_cast<const SCommand_Init *>(pBaseCommand)); break;
 	case CMD_SHUTDOWN: Cmd_Shutdown(static_cast<const SCommand_Shutdown *>(pBaseCommand)); break;
 	default: return false;
@@ -870,6 +879,11 @@ bool CGraphicsBackend_SDL_OpenGL::GetDesktopResolution(int Index, int *pDesktopW
 	*pDesktopWidth = DisplayMode.w;
 	*pDesktopHeight = DisplayMode.h;
 	return true;
+}
+
+void CGraphicsBackend_SDL_OpenGL::GetScreenSize(int *pScreenWidth, int *pScreenHeight)
+{
+	SDL_GL_GetDrawableSize(m_pWindow, pScreenWidth, pScreenHeight);
 }
 
 int CGraphicsBackend_SDL_OpenGL::WindowActive()

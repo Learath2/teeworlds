@@ -617,7 +617,7 @@ void CGraphics_Threaded::QuadsSetSubsetFree(
 	// tileset fallback system
 	if(m_pBackend->GetTextureArraySize() > 1 && TextureIndex >= 0)
 		TilesetFallbackSystem(TextureIndex);
-	
+
 	m_State.m_TextureArrayIndex = m_TextureArrayIndex;
 
 	m_aTexture[0].u = x0; m_aTexture[0].v = y0;
@@ -870,6 +870,29 @@ int CGraphics_Threaded::GetNumScreens() const
 	return m_pBackend->GetNumScreens();
 }
 
+void CGraphics_Threaded::Resize(int w, int h)
+{
+	if(m_ScreenWidth == w && m_ScreenHeight == h)
+		return;
+
+	if(h > 4*w/5)
+		h = 4*w/5;
+	if(w > 21*h/9)
+		w = 21*h/9;
+
+	CCommandBuffer::SCommand_Resize Cmd;
+	Cmd.m_Width = w;
+	Cmd.m_Height = h;
+	m_pCommandBuffer->AddCommand(Cmd);
+
+	// kick the command buffer
+	KickCommandBuffer();
+	WaitForIdle();
+
+	/*for(size_t i = 0; i < m_ResizeListeners.size(); ++i)
+		m_ResizeListeners[i].m_pFunc(m_ResizeListeners[i].m_pUser);*/
+}
+
 void CGraphics_Threaded::Minimize()
 {
 	m_pBackend->Minimize();
@@ -899,6 +922,11 @@ bool CGraphics_Threaded::SetWindowScreen(int Index)
 		return true;
 	}
 	return false;
+}
+
+void CGraphics_Threaded::UpdateScreenSize()
+{
+	m_pBackend->GetScreenSize(&m_ScreenWidth, &m_ScreenHeight);
 }
 
 int CGraphics_Threaded::GetWindowScreen()
