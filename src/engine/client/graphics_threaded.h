@@ -83,6 +83,7 @@ public:
 
 		// misc
 		CMD_VSYNC,
+		CMD_VIEWPORT_UPDATE,
 		CMD_SCREENSHOT,
 		CMD_VIDEOMODES,
 
@@ -215,6 +216,16 @@ public:
 		bool *m_pRetOk;
 	};
 
+	struct CUpdateViewportCommand : public CCommand
+	{
+		CUpdateViewportCommand() : CCommand(CMD_VIEWPORT_UPDATE) {}
+
+		int m_X;
+		int m_Y;
+		int m_Width;
+		int m_Height;
+	};
+
 	struct CTextureCreateCommand : public CCommand
 	{
 		CTextureCreateCommand() : CCommand(CMD_TEXTURE_CREATE) {}
@@ -323,6 +334,7 @@ public:
 
 	virtual int GetNumScreens() const = 0;
 
+	virtual void Resize(int Width, int Height) = 0;
 	virtual void Minimize() = 0;
 	virtual void Maximize() = 0;
 	virtual bool Fullscreen(bool State) = 0;
@@ -330,6 +342,7 @@ public:
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool GetDesktopResolution(int Index, int *pDesktopWidth, int* pDesktopHeight) = 0;
 	virtual int GetWindowScreen() = 0;
+	virtual void GetScreenBounds(int *pScreenWidth, int *pScreenHeight) = 0;
 	virtual int WindowActive() = 0;
 	virtual int WindowOpen() = 0;
 
@@ -448,12 +461,14 @@ public:
 	virtual void QuadsText(float x, float y, float Size, const char *pText);
 
 	virtual int GetNumScreens() const;
+	virtual void Resize(int Width, int Height);
 	virtual void Minimize();
 	virtual void Maximize();
 	virtual bool Fullscreen(bool State);
 	virtual void SetWindowBordered(bool State);
 	virtual bool SetWindowScreen(int Index);
 	virtual int GetWindowScreen();
+	virtual void UpdateScreenBounds();
 
 	virtual int WindowActive();
 	virtual int WindowOpen();

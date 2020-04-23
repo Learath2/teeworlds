@@ -870,6 +870,11 @@ int CGraphics_Threaded::GetNumScreens() const
 	return m_pBackend->GetNumScreens();
 }
 
+void CGraphics_Threaded::Resize(int Width, int Height)
+{
+	m_pBackend->Resize(Width, Height);
+}
+
 void CGraphics_Threaded::Minimize()
 {
 	m_pBackend->Minimize();
@@ -904,6 +909,21 @@ bool CGraphics_Threaded::SetWindowScreen(int Index)
 int CGraphics_Threaded::GetWindowScreen()
 {
 	return m_pBackend->GetWindowScreen();
+}
+
+void CGraphics_Threaded::UpdateScreenBounds()
+{
+	m_pBackend->GetScreenBounds(&m_ScreenWidth, &m_ScreenHeight);
+
+	CCommandBuffer::CUpdateViewportCommand Cmd;
+	Cmd.m_X = 0;
+	Cmd.m_Y = 0;
+	Cmd.m_Width = m_ScreenWidth;
+	Cmd.m_Height = m_ScreenHeight;
+
+	m_pCommandBuffer->AddCommand(Cmd);
+	KickCommandBuffer();
+	WaitForIdle();
 }
 
 int CGraphics_Threaded::WindowActive()

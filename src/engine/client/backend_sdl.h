@@ -134,6 +134,7 @@ private:
 	void Cmd_Clear(const CCommandBuffer::CClearCommand *pCommand);
 	void Cmd_Render(const CCommandBuffer::CRenderCommand *pCommand);
 	void Cmd_Screenshot(const CCommandBuffer::CScreenshotCommand *pCommand);
+	void Cmd_Viewport_Update(const CCommandBuffer::CUpdateViewportCommand *pCommand);
 
 public:
 	CCommandProcessorFragment_OpenGL();
@@ -208,11 +209,13 @@ public:
 
 	virtual void Minimize();
 	virtual void Maximize();
+	virtual void Resize(int Width, int Height);
 	virtual bool Fullscreen(bool State);		// on=true/off=false
 	virtual void SetWindowBordered(bool State);	// on=true/off=false
 	virtual bool SetWindowScreen(int Index);
 	virtual int GetWindowScreen();
-	virtual bool GetDesktopResolution(int Index, int *pDesktopWidth, int* pDesktopHeight);
+	virtual bool GetDesktopResolution(int Index, int *pDesktopWidth, int *pDesktopHeight);
+	virtual void GetScreenBounds(int *pScreenWidth, int *pScreenHeight);
 	virtual int WindowActive();
 	virtual int WindowOpen();
 };

@@ -438,15 +438,21 @@ int CInput::Update()
 					Action |= IInput::FLAG_RELEASE;
 					break;
 
-#if defined(CONF_PLATFORM_MACOSX)	// Todo SDL: remove this when fixed (mouse state is faulty on start)
 				case SDL_WINDOWEVENT:
-					if(Event.window.event == SDL_WINDOWEVENT_MAXIMIZED)
+					switch(Event.window.event)
 					{
+#if defined(CONF_PLATFORM_MACOSX)	// Todo SDL: remove this when fixed (mouse state is faulty on start)
+					case SDL_WINDOWEVENT_MAXIMIZED:
 						MouseModeAbsolute();
 						MouseModeRelative();
+						break;
+#endif
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+						dbg_msg("debug", "Screen resized to %d %d", Event.window.data1, Event.window.data2);
+						Graphics()->UpdateScreenBounds();
+						break;
 					}
 					break;
-#endif
 
 				// other messages
 				case SDL_QUIT:

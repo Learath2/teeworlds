@@ -503,6 +503,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Screenshot(const CCommandBuffer::CScr
 	pCommand->m_pImage->m_pData = pPixelData;
 }
 
+void CCommandProcessorFragment_OpenGL::Cmd_Viewport_Update(const CCommandBuffer::CUpdateViewportCommand *pCommand)
+{
+	glViewport(pCommand->m_X, pCommand->m_Y, pCommand->m_Width, pCommand->m_Height);
+}
+
 CCommandProcessorFragment_OpenGL::CCommandProcessorFragment_OpenGL()
 {
 	mem_zero(m_aTextures, sizeof(m_aTextures));
@@ -514,6 +519,7 @@ bool CCommandProcessorFragment_OpenGL::RunCommand(const CCommandBuffer::CCommand
 	switch(pBaseCommand->m_Cmd)
 	{
 	case CMD_INIT: Cmd_Init(static_cast<const CInitCommand *>(pBaseCommand)); break;
+	case CCommandBuffer::CMD_VIEWPORT_UPDATE: Cmd_Viewport_Update(static_cast<const CCommandBuffer::CUpdateViewportCommand *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_TEXTURE_CREATE: Cmd_Texture_Create(static_cast<const CCommandBuffer::CTextureCreateCommand *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_TEXTURE_DESTROY: Cmd_Texture_Destroy(static_cast<const CCommandBuffer::CTextureDestroyCommand *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_TEXTURE_UPDATE: Cmd_Texture_Update(static_cast<const CCommandBuffer::CTextureUpdateCommand *>(pBaseCommand)); break;
@@ -817,6 +823,11 @@ int CGraphicsBackend_SDL_OpenGL::MemoryUsage() const
 	return m_TextureMemoryUsage;
 }
 
+void CGraphicsBackend_SDL_OpenGL::Resize(int Width, int Height)
+{
+	SDL_SetWindowSize(m_pWindow, Width, Height);
+}
+
 void CGraphicsBackend_SDL_OpenGL::Minimize()
 {
 	SDL_MinimizeWindow(m_pWindow);
@@ -870,6 +881,11 @@ bool CGraphicsBackend_SDL_OpenGL::GetDesktopResolution(int Index, int *pDesktopW
 	*pDesktopWidth = DisplayMode.w;
 	*pDesktopHeight = DisplayMode.h;
 	return true;
+}
+
+void CGraphicsBackend_SDL_OpenGL::GetScreenBounds(int *pScreenWidth, int *pScreenHeight)
+{
+	SDL_GL_GetDrawableSize(m_pWindow, pScreenWidth, pScreenHeight);
 }
 
 int CGraphicsBackend_SDL_OpenGL::WindowActive()

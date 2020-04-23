@@ -178,6 +178,8 @@ public:
 	virtual void TakeScreenshot(const char *pFilename) = 0;
 	virtual int GetVideoModes(CVideoMode *pModes, int MaxModes, int Screen) = 0;
 
+	virtual void Resize(int Width, int Height) = 0;
+
 	virtual void Swap() = 0;
 	virtual int GetNumScreens() const = 0;
 
@@ -208,6 +210,7 @@ public:
 	virtual bool SetWindowScreen(int Index) = 0;
 	virtual bool SetVSync(bool State) = 0;
 	virtual int GetWindowScreen() = 0;
+	virtual void UpdateScreenBounds() = 0;
 
 	virtual void Minimize() = 0;
 	virtual void Maximize() = 0;

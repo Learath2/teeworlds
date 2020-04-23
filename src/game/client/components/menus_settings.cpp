@@ -1001,7 +1001,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 	if(DoButton_CheckBox(&s_EnableColoredBroadcasts, Localize("Enable colored server broadcasts"),
 						 Config()->m_ClColoredBroadcast, &Button))
 		Config()->m_ClColoredBroadcast ^= 1;
-	
+
 	GameRight.HSplitTop(Spacing, 0, &GameRight);
 	GameRight.HSplitTop(ButtonHeight, &Button, &GameRight);
 	static int s_DisableWhisperFeature = 0;
@@ -1863,6 +1863,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		static CListBox s_OthListBox;
 		CheckSettings |= DoResolutionList(&ListRec, &s_RecListBox, m_lRecommendedVideoModes);
 		CheckSettings |= DoResolutionList(&ListOth, &s_OthListBox, m_lOtherVideoModes);
+		if(CheckSettings)
+			Graphics()->Resize(Config()->m_GfxScreenWidth, Config()->m_GfxScreenHeight);
 	}
 
 	// reset button
