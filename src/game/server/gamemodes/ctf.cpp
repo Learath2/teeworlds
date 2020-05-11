@@ -80,7 +80,8 @@ bool CGameControllerCTF::OnEntity(int Index, vec2 Pos)
 	if(Team == -1 || m_apFlags[Team])
 		return false;
 
-	CFlag *F = new CFlag(&GameServer()->m_World, Team, Pos);
+	CFlag *F = new CFlag(Team, Pos);
+	GameServer()->m_World.InsertEntity(F);
 	m_apFlags[Team] = F;
 	return true;
 }
