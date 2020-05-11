@@ -39,7 +39,7 @@ TEST(Ex, MessageGame)
 	CNetObjHandler Handler;
 	TestMessage(false, NETMSGTYPE_SV_MYOWNMESSAGE, Packer.Data(), Packer.Size(), &Unpacker);
 	CNetMsg_Sv_MyOwnMessage *pMsg = (CNetMsg_Sv_MyOwnMessage *)Handler.SecureUnpackMsg(NETMSGTYPE_SV_MYOWNMESSAGE, &Unpacker);
-	ASSERT_NE(pMsg, nullptr);
+	ASSERT_NE(pMsg, (void *)0);
 	EXPECT_EQ(pMsg->m_Test, 1234567890);
 }
 
@@ -49,8 +49,8 @@ TEST(Ex, SnapshotObject)
 	Builder.Init();
 	CNetObj_MyOwnObject *pObj = (CNetObj_MyOwnObject *)Builder.NewItem(NETOBJTYPE_MYOWNOBJECT, 0, sizeof(*pObj));
 	CNetObj_MyOwnEvent *pEvent = (CNetObj_MyOwnEvent *)Builder.NewItem(NETOBJTYPE_MYOWNEVENT, 1, sizeof(*pEvent));
-	ASSERT_NE(pObj, nullptr);
-	ASSERT_NE(pEvent, nullptr);
+	ASSERT_NE(pObj, (void *)0);
+	ASSERT_NE(pEvent, (void *)0);
 	pObj->m_Test = 1234567890;
 	pEvent->m_Test = 1357924680;
 

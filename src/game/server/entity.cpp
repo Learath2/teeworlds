@@ -31,7 +31,7 @@ void CEntity::OnRemove()
 	PreRemove();
 	Server()->SnapFreeID(m_ID);
 
-	m_pGameWorld = nullptr;
+	m_pGameWorld = 0;
 	m_ID = -1;
 }
 
